@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "date": null,
+  "retrieved_at": null,
+  "timezone": "Asia/Shanghai",
+  "source": "尚未运行",
+  "test_run": false,
+  "count": 0,
+  "total_market_rows": 0,
+  "filters": {"change_min": 3, "change_max": 5, "turnover_min": 5, "turnover_max": 10, "ratio_gt": 1, "exclude": ["创业板", "科创板", "ST/*ST"]},
+  "stocks": [],
+  "disclaimer": "首次运行前没有任何实时或历史股票结果。"
+}
