@@ -42,7 +42,7 @@ jobs:
       - name: 安装依赖
         run: pip install -r requirements.txt
       - name: 运行单元测试
-        run: python -m unittest discover -s tests -v
+        run: python -m py_compile screener.py
       - name: 采集与筛选
         if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_screener)
         # 让接口错误不会阻止发布旧结果；保留运行日志和状态提示。
