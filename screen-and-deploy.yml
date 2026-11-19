@@ -1,0 +1,73 @@
+name: 每日14点30分选股并发布网页
+
+on:
+  schedule:
+    # GitHub cron 是 UTC；06:30 UTC = 北京时间 14:30。
+    # GitHub 的定时任务可能延迟或偶发跳过，非严格实时任务。
+    - cron: '30 6 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      run_screener:
+        description: '是否现在抓取行情并更新筛选结果（非交易日自动跳过）'
+        type: boolean
+        default: true
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages-deployment'
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: 安装 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+      - name: 运行单元测试
+        run: python -m unittest discover -s tests -v
+      - name: 采集与筛选
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_screener)
+        # 让接口错误不会阻止发布旧结果；保留运行日志和状态提示。
+        id: screen
+        continue-on-error: true
+        run: python screener.py
+      - name: 标记采集失败
+        if: steps.screen.outcome == 'failure'
+        run: echo '⚠️ 采集失败，本次网站继续展示上次成功数据。请查看采集日志。' >> "$GITHUB_STEP_SUMMARY"
+      - name: 将数据快照存入仓库
+        if: steps.screen.outcome == 'success'
+        run: |
+          if [[ -n "$(git status --porcelain -- docs/data)" ]]; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add docs/data
+            git commit -m 'data: update latest market screening snapshot [skip ci]'
+            git push origin HEAD:main
+          fi
+      - name: 配置 GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: 打包网站
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - name: 部署 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
