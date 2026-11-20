@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-20",
+  "retrieved_at": "2026-11-20T15:47:13+08:00",
+  "timezone": "Asia/Shanghai",
+  "source": "AKShare stock_zh_a_spot_em（东方财富公开行情）",
+  "test_run": false,
+  "count": 1,
+  "total_market_rows": 5931,
+  "filters": {
+    "change_min": 3,
+    "change_max": 5,
+    "turnover_min": 5,
+    "turnover_max": 10,
+    "ratio_gt": 1,
+    "exclude": [
+      "创业板",
+      "科创板",
+      "ST/*ST"
+    ]
+  },
+  "stocks": [
+    {
+      "code": "603081",
+      "name": "大丰实业",
+      "price": 9.79,
+      "change": 4.93,
+      "turnover": 5.25,
+      "ratio": 1.13
+    }
+  ],
+  "disclaimer": "行情可能延迟；仅为当次采集快照，不代表实时行情或投资建议。"
+}
